@@ -97,39 +97,28 @@ class DDFileRename
   end
 
   def actionPerformed(ae)
-    @files = @regexCheck.isSelected ? replaceFilesRegexp : replaceFiles
+    @files = replaceAll
     showFiles
   end
 
-  def replaceFilesRegexp
+  def replaceAll
     newfiles = []
     @files.each do |file|
-      newfile = replaceRegexp(file, @findText.getText, @replaceText.getText)
+      newfile = replace(file, getPattern, @replaceText.getText)
       newfiles << newfile
     end
     return newfiles
   end
 
-  def replaceRegexp(file, patstr, replacement)
-    pat = Regexp.compile(patstr)
-    newname = file.getName.sub(pat, replacement)
+  def replace(file, pattern, replacement)
+    newname = file.getName.sub(pattern, replacement)
     newfile = java.io.File.new(file.getParent, newname)
     return file.renameTo(newfile) ? newfile : file
   end
 
-  def replaceFiles
-    newfiles = []
-    @files.each do |file|
-      newfile = replace(file, @findText.getText, @replaceText.getText)
-      newfiles << newfile
-    end
-    return newfiles
-  end
-
-  def replace(file, target, replacement)
-    newname = file.getName.sub(target, replacement)
-    newfile = java.io.File.new(file.getParent, newname)
-    return file.renameTo(newfile) ? newfile : file
+  def getPattern
+    pat = @findText.getText
+    return @regexCheck.isSelected ? Regexp.compile(pat) : pat
   end
 
   def run
